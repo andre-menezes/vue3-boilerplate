@@ -1,0 +1,23 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "welcome": "Welcome"
+  },
+
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "name": "Full name",
+    "signIn": "Sign In",
+    "signingIn": "Signing in...",
+    "register": "Create account",
+    "registering": "Creating account...",
+    "alreadyHaveAccount": "Already have an account?",
+    "noAccount": "Don't have an account?",
+    "registerError": "Error creating account"
+  }
+}

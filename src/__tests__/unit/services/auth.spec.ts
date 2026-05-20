@@ -1,0 +1,64 @@
+import { describe, expect, it, vi } from 'vitest';
+import http from '@/services/http';
+import { authService } from '@/services/auth';
+
+vi.mock('@/services/http', () => ({
+  default: {
+    post: vi.fn(),
+    get: vi.fn(),
+  },
+}));
+
+describe('Auth Service', () => {
+  it('deve fazer login com endpoint e payload corretos', async () => {
+    const response = {
+      user: { id: '1', name: 'Admin User', email: 'admin@example.com', role: 'admin' as const },
+      accessToken: 'jwt-token',
+    };
+
+    vi.mocked(http.post).mockResolvedValueOnce({ data: response });
+
+    await expect(authService.login('admin@example.com', '123456')).resolves.toEqual(response);
+    expect(http.post).toHaveBeenCalledWith('/login', {
+      email: 'admin@example.com',
+      password: '123456',
+    });
+  });
+
+  it('deve registrar usuário com role padrão user', async () => {
+    const response = {
+      user: { id: '2', name: 'Regular User', email: 'user@example.com', role: 'user' as const },
+      accessToken: 'register-token',
+    };
+
+    vi.mocked(http.post).mockResolvedValueOnce({ data: response });
+
+    await expect(authService.register('user@example.com', '123456', 'Regular User')).resolves.toEqual(
+      response
+    );
+    expect(http.post).toHaveBeenCalledWith('/register', {
+      email: 'user@example.com',
+      password: '123456',
+      name: 'Regular User',
+      role: 'user',
+    });
+  });
+
+  it('deve retornar lista de usuários', async () => {
+    const users = [{ id: '1', name: 'Admin User', email: 'admin@example.com', role: 'admin' as const }];
+
+    vi.mocked(http.get).mockResolvedValueOnce({ data: users });
+
+    await expect(authService.getUsers()).resolves.toEqual(users);
+    expect(http.get).toHaveBeenCalledWith('/users');
+  });
+
+  it('deve buscar usuário por id string', async () => {
+    const user = { id: '550e8400', name: 'Admin User', email: 'admin@example.com', role: 'admin' as const };
+
+    vi.mocked(http.get).mockResolvedValueOnce({ data: user });
+
+    await expect(authService.getUserById('550e8400')).resolves.toEqual(user);
+    expect(http.get).toHaveBeenCalledWith('/users/550e8400');
+  });
+});

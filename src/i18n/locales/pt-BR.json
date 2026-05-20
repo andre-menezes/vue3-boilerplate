@@ -1,0 +1,23 @@
+{
+  "common": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "loading": "Carregando...",
+    "welcome": "Bem-vindo"
+  },
+
+  "auth": {
+    "login": "Fazer Login",
+    "logout": "Sair",
+    "email": "E-mail",
+    "password": "Senha",
+    "name": "Nome completo",
+    "signIn": "Entrar",
+    "signingIn": "Entrando...",
+    "register": "Criar conta",
+    "registering": "Criando conta...",
+    "alreadyHaveAccount": "Já tem uma conta?",
+    "noAccount": "Não tem uma conta?",
+    "registerError": "Erro ao criar conta"
+  }
+}
