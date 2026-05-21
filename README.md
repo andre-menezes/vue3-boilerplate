@@ -103,6 +103,12 @@ src/
 - Playwright covers the browser authentication flow with mocked authentication calls.
 - Minimum coverage thresholds are configured in `vitest.config.ts`.
 
+## Continuous integration
+
+GitHub Actions runs on pull requests and pushes targeting `develop` or `main`.
+
+The CI workflow installs dependencies with Yarn, then runs lint, coverage, build, and Playwright E2E checks.
+
 ## Branching workflow
 
 `main` is the stable branch. Daily work starts from `develop`, and pull requests should target `develop` by default.
