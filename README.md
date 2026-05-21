@@ -1,14 +1,113 @@
-# Vue 3 + TypeScript + Vite
+# Vue3 Boilerplate
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Boilerplate Vue 3 com TypeScript, Vite, Pinia, Vue Router, Tailwind CSS v4, vue-i18n, autenticação JWT e testes automatizados.
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+## Stack
+
+- Vue 3 com Composition API e `<script setup>`
+- TypeScript
+- Vite
+- Pinia com persistência em `localStorage`
+- Vue Router com guards de autenticação
+- Tailwind CSS v4
+- vue-i18n com `pt-BR` e `en-US`
+- Axios com interceptors para JWT
+- Vitest, Vue Test Utils e Playwright
+
+## Requisitos
+
+- Node.js compatível com as versões definidas no `yarn.lock`
+- Yarn
+
+Use sempre `yarn`. Não use `npm` ou `pnpm` neste projeto.
+
+## Instalação
+
+```bash
+yarn install
+```
+
+## Scripts
+
+```bash
+# Frontend em http://localhost:8080
+yarn dev
+
+# API mock em http://localhost:3000
+yarn server
+
+# Type-check + build
+yarn build
+
+# Testes unitários/componentes em watch mode
+yarn test
+
+# Testes unitários/componentes uma vez
+yarn test:run
+
+# Cobertura
+yarn test:coverage
+
+# E2E com Playwright
+yarn test:e2e
+
+# Lint
+yarn lint
+```
+
+## Autenticação
+
+O fluxo de autenticação usa `useAuthStore` com persistência via `pinia-plugin-persistedstate`.
+
+- `src/services/http.ts` adiciona `Authorization: Bearer <token>` nas requisições autenticadas.
+- Respostas `401` limpam a autenticação e redirecionam para Login.
+- `src/router/index.ts` protege a rota Home e redireciona usuários autenticados para fora de Login.
+
+Credenciais locais de teste:
+
+- `admin@example.com` / `123456`
+- `user@example.com` / `123456`
+
+## API mock
+
+`server.js` expõe:
+
+- `POST /login`
+- `POST /register`
+- `GET /users`
+- `GET /users/:id`
+
+Os dados são persistidos em `db.json`.
+
+## Estrutura
+
+```text
+src/
+├── assets/
+├── components/
+├── i18n/
+├── pages/
+├── plugins/
+├── router/
+├── services/
+├── stores/
+├── types/
+├── App.vue
+├── main.ts
+└── style.css
+```
+
+## Testes
+
+- Vitest cobre stores, services, router e componentes/páginas principais.
+- Playwright cobre o fluxo de autenticação pelo navegador com chamadas de autenticação mockadas.
+- A cobertura mínima é configurada em `vitest.config.ts`.
 
 ## Branching workflow
 
-`main` is the stable branch. Daily work starts from `develop`, and pull requests should target `develop` by default.
+`main` é a branch estável. O trabalho diário parte de `develop`, e pull requests devem mirar `develop` por padrão.
 
-Use one branch per change:
+Use uma branch por mudança:
 
 - `feature/descricao-curta`
 - `fix/descricao-curta`
@@ -16,4 +115,4 @@ Use one branch per change:
 - `test/descricao-curta`
 - `docs/descricao-curta`
 
-Keep branch descriptions short, kebab-case, and without accents. When `develop` is ready to release, open a PR from `develop` into `main`.
+Mantenha descrições curtas, em kebab-case e sem acentos. Quando `develop` estiver pronta para release, abra um PR de `develop` para `main`.
