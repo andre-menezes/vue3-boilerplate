@@ -74,11 +74,11 @@ Commits follow Conventional Commits (`@commitlint/config-conventional`). Husky r
 - Keep `main` stable. Do not create feature, fix, test, chore, or docs work directly from `main`.
 - Use `develop` as the integration branch. Before starting work, update it with `git switch develop` and `git pull --ff-only origin develop`.
 - Create one branch per change from `develop`, using kebab-case:
-  - `feature/descricao-curta` for new functionality
-  - `fix/descricao-curta` for bug fixes
-  - `chore/descricao-curta` for maintenance and configuration
-  - `test/descricao-curta` for test-focused changes
-  - `docs/descricao-curta` for documentation
+  - `feature/short-description` for new functionality
+  - `fix/short-description` for bug fixes
+  - `chore/short-description` for maintenance and configuration
+  - `test/short-description` for test-focused changes
+  - `docs/short-description` for documentation
 - Open pull requests from work branches into `develop` by default.
 - Open pull requests from `develop` into `main` only when the integrated version is ready for release.
 - Run the relevant `yarn` checks before pushing or opening a PR. For code changes, use at least `yarn lint`, `yarn test:run`, and `yarn build`; include `yarn test:e2e` when the change affects routed user flows.

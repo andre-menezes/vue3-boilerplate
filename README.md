@@ -1,27 +1,27 @@
 # Vue3 Boilerplate
 
-Boilerplate Vue 3 com TypeScript, Vite, Pinia, Vue Router, Tailwind CSS v4, vue-i18n, autenticação JWT e testes automatizados.
+Vue 3 boilerplate with TypeScript, Vite, Pinia, Vue Router, Tailwind CSS v4, vue-i18n, JWT authentication, and automated tests.
 
 ## Stack
 
-- Vue 3 com Composition API e `<script setup>`
+- Vue 3 with Composition API and `<script setup>`
 - TypeScript
 - Vite
-- Pinia com persistência em `localStorage`
-- Vue Router com guards de autenticação
+- Pinia with `localStorage` persistence
+- Vue Router with authentication guards
 - Tailwind CSS v4
-- vue-i18n com `pt-BR` e `en-US`
-- Axios com interceptors para JWT
+- vue-i18n with `pt-BR` and `en-US`
+- Axios with JWT interceptors
 - Vitest, Vue Test Utils e Playwright
 
-## Requisitos
+## Requirements
 
-- Node.js compatível com as versões definidas no `yarn.lock`
+- Node.js compatible with the versions locked in `yarn.lock`
 - Yarn
 
-Use sempre `yarn`. Não use `npm` ou `pnpm` neste projeto.
+Always use `yarn`. Do not use `npm` or `pnpm` in this project.
 
-## Instalação
+## Installation
 
 ```bash
 yarn install
@@ -30,56 +30,56 @@ yarn install
 ## Scripts
 
 ```bash
-# Frontend em http://localhost:8080
+# Frontend at http://localhost:8080
 yarn dev
 
-# API mock em http://localhost:3000
+# Mock API at http://localhost:3000
 yarn server
 
 # Type-check + build
 yarn build
 
-# Testes unitários/componentes em watch mode
+# Unit/component tests in watch mode
 yarn test
 
-# Testes unitários/componentes uma vez
+# Unit/component tests once
 yarn test:run
 
-# Cobertura
+# Coverage
 yarn test:coverage
 
-# E2E com Playwright
+# E2E with Playwright
 yarn test:e2e
 
 # Lint
 yarn lint
 ```
 
-## Autenticação
+## Authentication
 
-O fluxo de autenticação usa `useAuthStore` com persistência via `pinia-plugin-persistedstate`.
+The authentication flow uses `useAuthStore` with persistence through `pinia-plugin-persistedstate`.
 
-- `src/services/http.ts` adiciona `Authorization: Bearer <token>` nas requisições autenticadas.
-- Respostas `401` limpam a autenticação e redirecionam para Login.
-- `src/router/index.ts` protege a rota Home e redireciona usuários autenticados para fora de Login.
+- `src/services/http.ts` adds `Authorization: Bearer <token>` to authenticated requests.
+- `401` responses clear authentication and redirect to Login.
+- `src/router/index.ts` protects the Home route and redirects authenticated users away from Login.
 
-Credenciais locais de teste:
+Local test credentials:
 
 - `admin@example.com` / `123456`
 - `user@example.com` / `123456`
 
 ## API mock
 
-`server.js` expõe:
+`server.js` exposes:
 
 - `POST /login`
 - `POST /register`
 - `GET /users`
 - `GET /users/:id`
 
-Os dados são persistidos em `db.json`.
+Data is persisted in `db.json`.
 
-## Estrutura
+## Structure
 
 ```text
 src/
@@ -97,22 +97,22 @@ src/
 └── style.css
 ```
 
-## Testes
+## Tests
 
-- Vitest cobre stores, services, router e componentes/páginas principais.
-- Playwright cobre o fluxo de autenticação pelo navegador com chamadas de autenticação mockadas.
-- A cobertura mínima é configurada em `vitest.config.ts`.
+- Vitest covers stores, services, router, and the main components/pages.
+- Playwright covers the browser authentication flow with mocked authentication calls.
+- Minimum coverage thresholds are configured in `vitest.config.ts`.
 
 ## Branching workflow
 
-`main` é a branch estável. O trabalho diário parte de `develop`, e pull requests devem mirar `develop` por padrão.
+`main` is the stable branch. Daily work starts from `develop`, and pull requests should target `develop` by default.
 
-Use uma branch por mudança:
+Use one branch per change:
 
-- `feature/descricao-curta`
-- `fix/descricao-curta`
-- `chore/descricao-curta`
-- `test/descricao-curta`
-- `docs/descricao-curta`
+- `feature/short-description`
+- `fix/short-description`
+- `chore/short-description`
+- `test/short-description`
+- `docs/short-description`
 
-Mantenha descrições curtas, em kebab-case e sem acentos. Quando `develop` estiver pronta para release, abra um PR de `develop` para `main`.
+Keep descriptions short and in kebab-case. When `develop` is ready for release, open a PR from `develop` into `main`.
