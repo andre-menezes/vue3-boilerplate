@@ -8,7 +8,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 const adapter = new JSONFile('db.json');
 const db = new Low(adapter, {});
-const JWT_SECRET = 'your-secret-key-change-this-in-production';
+const parsedApiPort = Number.parseInt(process.env.API_PORT ?? '3000', 10);
+const API_PORT = Number.isNaN(parsedApiPort) ? 3000 : parsedApiPort;
+const JWT_SECRET = process.env.JWT_SECRET ?? 'dev-secret-change-me';
 
 await db.read();
 
@@ -146,8 +148,8 @@ app.get('/users/:id', (req, res) => {
   res.json(user);
 });
 
-app.listen(3000, () => {
-  console.log('JSON Server com autenticação está rodando na porta 3000');
+app.listen(API_PORT, () => {
+  console.log(`Mock API server with authentication is running on port ${API_PORT}`);
   console.log('');
   console.log('Rotas disponíveis:');
   console.log('  POST /login - Login (email e password)');

@@ -199,11 +199,10 @@ const featureList = [
   },
   {
     title: 'Auth JWT + API',
-    description:
-      'Autenticação completa com JWT, interceptors Axios e backend mock com json-server.',
+    description: 'Autenticação completa com JWT, interceptors Axios e backend mock configurável.',
     icon: IconAuth,
     iconClass: 'bg-rose-500/12 text-rose-600',
-    tags: ['JWT', 'Axios', 'json-server'],
+    tags: ['JWT', 'Axios', 'Mock API'],
   },
 ];
 </script>

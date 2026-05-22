@@ -12,7 +12,7 @@ Vue 3 boilerplate with TypeScript, Vite, Pinia, Vue Router, Tailwind CSS v4, vue
 - Tailwind CSS v4
 - vue-i18n with `pt-BR` and `en-US`
 - Axios with JWT interceptors
-- Vitest, Vue Test Utils e Playwright
+- Vitest, Vue Test Utils, and Playwright
 
 ## Requirements
 
@@ -26,6 +26,8 @@ Always use `yarn`. Do not use `npm` or `pnpm` in this project.
 ```bash
 yarn install
 ```
+
+Copy `.env.example` to `.env` if you need to override local defaults.
 
 ## Scripts
 
@@ -78,6 +80,14 @@ Local test credentials:
 - `GET /users/:id`
 
 Data is persisted in `db.json`.
+
+## Environment variables
+
+| Variable            | Default                 | Description                 |
+| ------------------- | ----------------------- | --------------------------- |
+| `VITE_API_BASE_URL` | `http://localhost:3000` | Frontend API base URL       |
+| `API_PORT`          | `3000`                  | Mock API server port        |
+| `JWT_SECRET`        | `dev-secret-change-me`  | JWT signing secret for mock |
 
 ## Structure
 
