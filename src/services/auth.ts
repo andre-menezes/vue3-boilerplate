@@ -1,5 +1,10 @@
 import http from './http';
-import type { User, AuthResponse } from '@app-types/auth';
+import type {
+  AuthResponse,
+  CreateUserPayload,
+  UpdateUserPayload,
+  UserWithoutPassword,
+} from '@app-types/auth';
 
 export const authService = {
   async login(email: string, password: string): Promise<AuthResponse> {
@@ -20,13 +25,28 @@ export const authService = {
     return response.data;
   },
 
-  async getUsers(): Promise<User[]> {
-    const response = await http.get<User[]>('/users');
+  async getUsers(): Promise<UserWithoutPassword[]> {
+    const response = await http.get<UserWithoutPassword[]>('/users');
     return response.data;
   },
 
-  async getUserById(id: string): Promise<User> {
-    const response = await http.get<User>(`/users/${id}`);
+  async getUserById(id: string): Promise<UserWithoutPassword> {
+    const response = await http.get<UserWithoutPassword>(`/users/${id}`);
+    return response.data;
+  },
+
+  async createUser(payload: CreateUserPayload): Promise<UserWithoutPassword> {
+    const response = await http.post<UserWithoutPassword>('/users', payload);
+    return response.data;
+  },
+
+  async updateUser(id: string, payload: UpdateUserPayload): Promise<UserWithoutPassword> {
+    const response = await http.patch<UserWithoutPassword>(`/users/${id}`, payload);
+    return response.data;
+  },
+
+  async deleteUser(id: string): Promise<void> {
+    const response = await http.delete<void>(`/users/${id}`);
     return response.data;
   },
 };

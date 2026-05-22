@@ -6,6 +6,8 @@ vi.mock('@/services/http', () => ({
   default: {
     post: vi.fn(),
     get: vi.fn(),
+    patch: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
@@ -60,5 +62,50 @@ describe('Auth Service', () => {
 
     await expect(authService.getUserById('550e8400')).resolves.toEqual(user);
     expect(http.get).toHaveBeenCalledWith('/users/550e8400');
+  });
+
+  it('deve criar usuário com endpoint e payload corretos', async () => {
+    const payload = {
+      name: 'New User',
+      email: 'new@example.com',
+      password: '123456',
+      role: 'user' as const,
+    };
+    const response = {
+      id: '3',
+      name: 'New User',
+      email: 'new@example.com',
+      role: 'user' as const,
+    };
+
+    vi.mocked(http.post).mockResolvedValueOnce({ data: response });
+
+    await expect(authService.createUser(payload)).resolves.toEqual(response);
+    expect(http.post).toHaveBeenCalledWith('/users', payload);
+  });
+
+  it('deve atualizar usuário com patch e retornar response.data', async () => {
+    const payload = {
+      name: 'Updated User',
+      role: 'admin' as const,
+    };
+    const response = {
+      id: '3',
+      name: 'Updated User',
+      email: 'new@example.com',
+      role: 'admin' as const,
+    };
+
+    vi.mocked(http.patch).mockResolvedValueOnce({ data: response });
+
+    await expect(authService.updateUser('3', payload)).resolves.toEqual(response);
+    expect(http.patch).toHaveBeenCalledWith('/users/3', payload);
+  });
+
+  it('deve remover usuário pelo endpoint correto', async () => {
+    vi.mocked(http.delete).mockResolvedValueOnce({ data: undefined });
+
+    await expect(authService.deleteUser('3')).resolves.toBeUndefined();
+    expect(http.delete).toHaveBeenCalledWith('/users/3');
   });
 });
