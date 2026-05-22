@@ -22,5 +22,24 @@ interface RegisterPayload extends LoginPayload {
 }
 
 type UserWithoutPassword = Omit<User, 'password'>;
+type UserRole = User['role'];
 
-export type { User, AuthResponse, LoginPayload, RegisterPayload, UserWithoutPassword };
+interface CreateUserPayload {
+  name: string;
+  email: string;
+  password: string;
+  role?: UserRole;
+}
+
+type UpdateUserPayload = Partial<CreateUserPayload>;
+
+export type {
+  User,
+  AuthResponse,
+  LoginPayload,
+  RegisterPayload,
+  UserWithoutPassword,
+  UserRole,
+  CreateUserPayload,
+  UpdateUserPayload,
+};

@@ -74,12 +74,16 @@ Local test credentials:
 
 `server.js` exposes:
 
-- `POST /login`
-- `POST /register`
-- `GET /users`
-- `GET /users/:id`
+- `POST /login` - public login endpoint
+- `POST /register` - public account creation endpoint
+- `GET /users` - protected user list
+- `GET /users/:id` - protected user lookup
+- `POST /users` - protected user creation
+- `PUT /users/:id` - protected full user update
+- `PATCH /users/:id` - protected partial user update
+- `DELETE /users/:id` - protected user removal
 
-Data is persisted in `db.json`.
+Protected endpoints require `Authorization: Bearer <token>`. Data is persisted in `db.json`, and user responses never include `password`.
 
 ## Environment variables
 
