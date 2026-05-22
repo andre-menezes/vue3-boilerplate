@@ -57,6 +57,8 @@ Always use `yarn` — never `npm` or `pnpm`.
 
 **Mock API server:** `server.js` uses `@tinyhttp/app`, `@tinyhttp/cors`, `milliparsec`, `lowdb`, `jsonwebtoken`, and `uuid`. Data is persisted in `db.json`. Test credentials: `admin@example.com` / `user@example.com`, password `123456` for both. The API runs on `http://localhost:3000`.
 
+**Environment:** local defaults are documented in `.env.example`. The frontend reads `VITE_API_BASE_URL`; the mock API reads `API_PORT` and `JWT_SECRET`.
+
 **i18n:** Default locale is `pt-BR`, fallback is `en-US`. Locale files live in `src/i18n/locales/`.
 
 ## CSS conventions
