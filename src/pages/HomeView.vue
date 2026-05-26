@@ -13,6 +13,7 @@
         >Funcionalidades</RouterLink
       >
       <RouterLink
+        v-if="authStore.isAdmin"
         :to="{ name: 'Users' }"
         class="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
         >Usuários</RouterLink
@@ -153,6 +154,9 @@ import IconPinia from '@/components/icons/IconPinia.vue';
 import IconRouter from '@/components/icons/IconRouter.vue';
 import IconI18n from '@/components/icons/IconI18n.vue';
 import IconAuth from '@/components/icons/IconAuth.vue';
+import { useAuthStore } from '@/stores/auth';
+
+const authStore = useAuthStore();
 
 const stats = [
   { value: 'Vue 3', label: 'Composition API' },

@@ -63,12 +63,36 @@ describe('Router', () => {
     const router = await createFreshRouter();
     const authStore = useAuthStore();
     authStore.token = 'jwt-token';
+    authStore.user = {
+      id: '1',
+      name: 'Admin User',
+      email: 'admin@example.com',
+      role: 'admin',
+    };
 
     await router.push('/users');
     await router.isReady();
 
     expect(router.currentRoute.value.name).toBe('Users');
     expect(document.title).toBe('Users | Vue3 Boilerplate');
+  });
+
+  it('redireciona Users para Home quando usuário autenticado não é admin', async () => {
+    setActivePinia(createPinia());
+    const router = await createFreshRouter();
+    const authStore = useAuthStore();
+    authStore.token = 'jwt-token';
+    authStore.user = {
+      id: '2',
+      name: 'Regular User',
+      email: 'user@example.com',
+      role: 'user',
+    };
+
+    await router.push('/users');
+    await router.isReady();
+
+    expect(router.currentRoute.value.name).toBe('Home');
   });
 
   it('renderiza NotFound para rota desconhecida', async () => {

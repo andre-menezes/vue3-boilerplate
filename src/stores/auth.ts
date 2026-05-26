@@ -13,6 +13,7 @@ export const useAuthStore = defineStore(
 
     // getters
     const isAuthenticated = computed(() => !!token.value);
+    const isAdmin = computed(() => user.value?.role === 'admin');
     const fullName = computed(() => user.value?.name ?? '');
 
     // actions
@@ -62,6 +63,7 @@ export const useAuthStore = defineStore(
       isLoading,
       error,
       isAuthenticated,
+      isAdmin,
       fullName,
       login,
       register,

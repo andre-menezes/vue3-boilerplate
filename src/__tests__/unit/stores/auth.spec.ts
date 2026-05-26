@@ -39,6 +39,27 @@ describe('Auth Store', () => {
     expect(store.isAuthenticated).toBe(false);
   });
 
+  it('deve computar isAdmin pelo papel do usuário', () => {
+    const store = useAuthStore();
+    expect(store.isAdmin).toBe(false);
+
+    store.user = {
+      id: '1',
+      name: 'Regular User',
+      email: 'user@example.com',
+      role: 'user',
+    };
+    expect(store.isAdmin).toBe(false);
+
+    store.user = {
+      id: '2',
+      name: 'Admin User',
+      email: 'admin@example.com',
+      role: 'admin',
+    };
+    expect(store.isAdmin).toBe(true);
+  });
+
   it('deve computar fullName do usuário', () => {
     const store = useAuthStore();
     expect(store.fullName).toBe('');

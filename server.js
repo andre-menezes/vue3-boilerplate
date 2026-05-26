@@ -56,6 +56,14 @@ const requireAuth = (req, res, next) => {
   }
 };
 
+const requireAdmin = (req, res, next) => {
+  if (req.user?.role !== 'admin') {
+    return res.status(403).json({ error: 'Acesso restrito a administradores' });
+  }
+
+  return next();
+};
+
 const findUserById = (id) => ensureUsers().find((user) => user.id === id);
 
 const emailExists = (email, currentUserId) =>
@@ -178,12 +186,12 @@ app.post('/register', async (req, res) => {
 });
 
 // Rota para listar usuários
-app.get('/users', requireAuth, (req, res) => {
+app.get('/users', requireAuth, requireAdmin, (req, res) => {
   res.json(ensureUsers().map(sanitizeUser));
 });
 
 // Rota para obter usuário por ID
-app.get('/users/:id', requireAuth, (req, res) => {
+app.get('/users/:id', requireAuth, requireAdmin, (req, res) => {
   const user = findUserById(req.params.id);
   if (!user) {
     return res.status(404).json({ error: 'Usuário não encontrado' });
@@ -192,7 +200,7 @@ app.get('/users/:id', requireAuth, (req, res) => {
 });
 
 // Rota para criar usuário autenticado
-app.post('/users', requireAuth, async (req, res) => {
+app.post('/users', requireAuth, requireAdmin, async (req, res) => {
   const { email, password, name, role = 'user' } = req.body;
 
   if (!email || !password || !name) {
@@ -244,11 +252,11 @@ const updateUserHandler = async (req, res) => {
 };
 
 // Rotas para atualizar usuário
-app.put('/users/:id', requireAuth, updateUserHandler);
-app.patch('/users/:id', requireAuth, updateUserHandler);
+app.put('/users/:id', requireAuth, requireAdmin, updateUserHandler);
+app.patch('/users/:id', requireAuth, requireAdmin, updateUserHandler);
 
 // Rota para remover usuário
-app.delete('/users/:id', requireAuth, async (req, res) => {
+app.delete('/users/:id', requireAuth, requireAdmin, async (req, res) => {
   const users = ensureUsers();
   const userIndex = users.findIndex((user) => user.id === req.params.id);
 
@@ -268,12 +276,12 @@ app.listen(API_PORT, () => {
   console.log('Rotas disponíveis:');
   console.log('  🔐 POST /login - Login (email e password)');
   console.log('  📝 POST /register - Registrar novo usuário');
-  console.log('  👥 GET /users - Listar todos os usuários (JWT)');
-  console.log('  🔎 GET /users/:id - Obter usuário por ID (JWT)');
-  console.log('  ➕ POST /users - Criar usuário (JWT)');
-  console.log('  ♻️ PUT /users/:id - Atualizar usuário (JWT)');
-  console.log('  🧩 PATCH /users/:id - Atualizar usuário parcialmente (JWT)');
-  console.log('  🗑️ DELETE /users/:id - Remover usuário (JWT)');
+  console.log('  👥 GET /users - Listar todos os usuários (admin JWT)');
+  console.log('  🔎 GET /users/:id - Obter usuário por ID (admin JWT)');
+  console.log('  ➕ POST /users - Criar usuário (admin JWT)');
+  console.log('  ♻️ PUT /users/:id - Atualizar usuário (admin JWT)');
+  console.log('  🧩 PATCH /users/:id - Atualizar usuário parcialmente (admin JWT)');
+  console.log('  🗑️ DELETE /users/:id - Remover usuário (admin JWT)');
   console.log('');
   console.log('Credenciais para teste:');
   console.log('  Email: admin@example.com');
