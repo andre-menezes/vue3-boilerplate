@@ -287,6 +287,11 @@ app.get('/audit-logs', requireAuth, requireAdmin, (req, res) => {
   res.json(ensureAuditLogs());
 });
 
+// Alias compatível com a convenção camelCase usada por json-server.
+app.get('/auditLogs', requireAuth, requireAdmin, (req, res) => {
+  res.json(ensureAuditLogs());
+});
+
 // Rota para listar usuários
 app.get('/users', requireAuth, requireAdmin, (req, res) => {
   res.json(ensureUsers().map(sanitizeUser));
@@ -384,6 +389,7 @@ app.listen(API_PORT, () => {
   console.log('  🙋 GET /profile - Obter perfil autenticado (JWT)');
   console.log('  ✏️ PATCH /profile - Atualizar perfil autenticado (JWT)');
   console.log('  🧾 GET /audit-logs - Listar auditoria (admin JWT)');
+  console.log('  🧾 GET /auditLogs - Listar auditoria, alias compatível (admin JWT)');
   console.log('  👥 GET /users - Listar todos os usuários (admin JWT)');
   console.log('  🔎 GET /users/:id - Obter usuário por ID (admin JWT)');
   console.log('  ➕ POST /users - Criar usuário (admin JWT)');
