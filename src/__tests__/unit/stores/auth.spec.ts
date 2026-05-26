@@ -8,6 +8,7 @@ vi.mock('@/services/auth', () => ({
   authService: {
     login: vi.fn(),
     register: vi.fn(),
+    updateProfile: vi.fn(),
     getUsers: vi.fn(),
     getUserById: vi.fn(),
   },
@@ -160,6 +161,35 @@ describe('Auth Store', () => {
     expect(store.user).toEqual(user);
     expect(store.token).toBe('register-token');
     expect(store.isAuthenticated).toBe(true);
+    expect(store.error).toBeNull();
+    expect(store.isLoading).toBe(false);
+  });
+
+  it('deve atualizar perfil e sincronizar usuário autenticado', async () => {
+    const store = useAuthStore();
+    store.user = {
+      id: '1',
+      name: 'Admin User',
+      email: 'admin@example.com',
+      role: 'admin',
+    };
+
+    const updatedUser = {
+      id: '1',
+      name: 'Admin Updated',
+      email: 'admin.updated@example.com',
+      role: 'admin' as const,
+    };
+
+    vi.mocked(authService.updateProfile).mockResolvedValue(updatedUser);
+
+    await store.updateProfile({ name: 'Admin Updated', email: 'admin.updated@example.com' });
+
+    expect(authService.updateProfile).toHaveBeenCalledWith({
+      name: 'Admin Updated',
+      email: 'admin.updated@example.com',
+    });
+    expect(store.user).toEqual(updatedUser);
     expect(store.error).toBeNull();
     expect(store.isLoading).toBe(false);
   });

@@ -32,9 +32,12 @@ describe('HomeView', () => {
 
   it('renderiza navegação sem o item Funcionalidades para usuário comum', () => {
     const wrapper = mountHomeView();
-    const links = wrapper.findAllComponents(RouterLinkStub);
 
-    expect(links.map((link) => link.text())).toEqual(['Início']);
+    expect(wrapper.get('header').text()).toContain('Início');
+    expect(wrapper.get('header').text()).not.toContain('Funcionalidades');
+    expect(wrapper.get('header').text()).not.toContain('Usuários');
+    expect(wrapper.text()).toContain('Meu perfil');
+    expect(wrapper.text()).toContain('Áreas administrativas ficam ocultas');
   });
 
   it('renderiza Usuários apenas para admin', () => {
@@ -43,7 +46,10 @@ describe('HomeView', () => {
     const wrapper = mountHomeView();
     const links = wrapper.findAllComponents(RouterLinkStub);
 
-    expect(links.map((link) => link.text())).toEqual(['Início', 'Usuários']);
+    expect(wrapper.get('header').text()).toContain('Início');
+    expect(wrapper.get('header').text()).toContain('Usuários');
+    expect(wrapper.get('header').text()).not.toContain('Funcionalidades');
     expect(links[1].props('to')).toEqual({ name: 'Users' });
+    expect(wrapper.text()).toContain('Gestão de usuários');
   });
 });

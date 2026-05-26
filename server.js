@@ -11,6 +11,24 @@ const db = new Low(adapter, {});
 const parsedApiPort = Number.parseInt(process.env.API_PORT ?? '3000', 10);
 const API_PORT = Number.isNaN(parsedApiPort) ? 3000 : parsedApiPort;
 const JWT_SECRET = process.env.JWT_SECRET ?? 'dev-secret-change-me';
+const MOCK_DEFAULT_PASSWORD = '123456';
+const LEGACY_HASH_PREFIX = '$2a$';
+const DEFAULT_USERS = [
+  {
+    id: '550e8400-e29b-41d4-a716-446655440000',
+    email: 'admin@example.com',
+    password: MOCK_DEFAULT_PASSWORD,
+    name: 'Admin User',
+    role: 'admin',
+  },
+  {
+    id: '6ba7b810-9dad-11d1-80b4-00c04fd430c8',
+    email: 'user@example.com',
+    password: MOCK_DEFAULT_PASSWORD,
+    name: 'Regular User',
+    role: 'user',
+  },
+];
 
 await db.read();
 
@@ -21,7 +39,32 @@ const ensureUsers = () => {
     db.data.users = [];
   }
 
+  if (db.data.users.length === 0) {
+    db.data.users = DEFAULT_USERS.map((user) => ({ ...user }));
+  }
+
   return db.data.users;
+};
+
+const ensureAuditLogs = () => {
+  if (!Array.isArray(db.data.auditLogs)) {
+    db.data.auditLogs = [];
+  }
+
+  return db.data.auditLogs;
+};
+
+const normalizeMockPasswords = () => {
+  let didNormalize = false;
+
+  for (const user of ensureUsers()) {
+    if (typeof user.password === 'string' && user.password.startsWith(LEGACY_HASH_PREFIX)) {
+      user.password = MOCK_DEFAULT_PASSWORD;
+      didNormalize = true;
+    }
+  }
+
+  return didNormalize;
 };
 
 const sanitizeUser = ({ password, ...user }) => user;
@@ -69,6 +112,21 @@ const findUserById = (id) => ensureUsers().find((user) => user.id === id);
 const emailExists = (email, currentUserId) =>
   ensureUsers().some((user) => user.email === email && user.id !== currentUserId);
 
+const findCurrentUser = (req) => findUserById(req.user?.id);
+
+const recordAuditLog = (req, action, targetUser, summary) => {
+  const actor = findCurrentUser(req);
+
+  ensureAuditLogs().unshift({
+    id: uuidv4(),
+    action,
+    actor: actor ? sanitizeUser(actor) : req.user,
+    target: targetUser ? sanitizeUser(targetUser) : null,
+    summary,
+    createdAt: new Date().toISOString(),
+  });
+};
+
 const createUser = ({ email, password, name, role = 'user' }) => ({
   id: uuidv4(),
   email,
@@ -98,6 +156,10 @@ const updateUser = (user, payload) => {
 
   return user;
 };
+
+normalizeMockPasswords();
+ensureAuditLogs();
+await db.write();
 
 // Middleware CORS
 app
@@ -132,7 +194,7 @@ app.post('/login', async (req, res) => {
   }
 
   // Verificar senha
-  const isPasswordValid = password === user.password || password === '123456';
+  const isPasswordValid = password === user.password;
 
   if (!isPasswordValid) {
     return res.status(401).json({
@@ -175,6 +237,7 @@ app.post('/register', async (req, res) => {
   });
 
   users.push(newUser);
+  ensureAuditLogs();
   await db.write();
 
   const token = createToken(newUser);
@@ -183,6 +246,45 @@ app.post('/register', async (req, res) => {
     accessToken: token,
     user: sanitizeUser(newUser),
   });
+});
+
+// Rota para consultar perfil autenticado
+app.get('/profile', requireAuth, (req, res) => {
+  const user = findCurrentUser(req);
+
+  if (!user) {
+    return res.status(404).json({ error: 'Usuário não encontrado' });
+  }
+
+  res.json(sanitizeUser(user));
+});
+
+// Rota para atualizar perfil autenticado
+app.patch('/profile', requireAuth, async (req, res) => {
+  const user = findCurrentUser(req);
+
+  if (!user) {
+    return res.status(404).json({ error: 'Usuário não encontrado' });
+  }
+
+  const { name, email, password } = req.body;
+
+  if (email !== undefined && emailExists(email, user.id)) {
+    return res.status(409).json({
+      error: 'Usuário com este email já existe',
+    });
+  }
+
+  updateUser(user, { name, email, password });
+  recordAuditLog(req, 'profile.update', user, `${user.email} atualizou o próprio perfil`);
+  await db.write();
+
+  res.json(sanitizeUser(user));
+});
+
+// Rota para listar logs de auditoria
+app.get('/audit-logs', requireAuth, requireAdmin, (req, res) => {
+  res.json(ensureAuditLogs());
 });
 
 // Rota para listar usuários
@@ -221,6 +323,7 @@ app.post('/users', requireAuth, requireAdmin, async (req, res) => {
 
   const newUser = createUser({ email, password, name, role });
   ensureUsers().push(newUser);
+  recordAuditLog(req, 'user.create', newUser, `${newUser.email} foi criado`);
   await db.write();
 
   res.status(201).json(sanitizeUser(newUser));
@@ -246,6 +349,7 @@ const updateUserHandler = async (req, res) => {
   }
 
   updateUser(user, req.body);
+  recordAuditLog(req, 'user.update', user, `${user.email} foi atualizado`);
   await db.write();
 
   return res.json(sanitizeUser(user));
@@ -264,7 +368,8 @@ app.delete('/users/:id', requireAuth, requireAdmin, async (req, res) => {
     return res.status(404).json({ error: 'Usuário não encontrado' });
   }
 
-  users.splice(userIndex, 1);
+  const [deletedUser] = users.splice(userIndex, 1);
+  recordAuditLog(req, 'user.delete', deletedUser, `${deletedUser.email} foi removido`);
   await db.write();
 
   return res.status(204).end();
@@ -276,6 +381,9 @@ app.listen(API_PORT, () => {
   console.log('Rotas disponíveis:');
   console.log('  🔐 POST /login - Login (email e password)');
   console.log('  📝 POST /register - Registrar novo usuário');
+  console.log('  🙋 GET /profile - Obter perfil autenticado (JWT)');
+  console.log('  ✏️ PATCH /profile - Atualizar perfil autenticado (JWT)');
+  console.log('  🧾 GET /audit-logs - Listar auditoria (admin JWT)');
   console.log('  👥 GET /users - Listar todos os usuários (admin JWT)');
   console.log('  🔎 GET /users/:id - Obter usuário por ID (admin JWT)');
   console.log('  ➕ POST /users - Criar usuário (admin JWT)');

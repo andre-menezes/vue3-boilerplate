@@ -64,6 +64,7 @@ The authentication flow uses `useAuthStore` with persistence through `pinia-plug
 - `src/services/http.ts` adds `Authorization: Bearer <token>` to authenticated requests.
 - `401` responses clear authentication and redirect to Login.
 - `src/router/index.ts` protects authenticated routes, restricts user management to admins, and redirects authenticated users away from Login.
+- The mock API stores passwords as plain text only for local development. Do not reuse this behavior in production.
 
 Local test credentials:
 
@@ -76,6 +77,9 @@ Local test credentials:
 
 - `POST /login` - public login endpoint
 - `POST /register` - public account creation endpoint
+- `GET /profile` - authenticated profile lookup
+- `PATCH /profile` - authenticated profile update
+- `GET /audit-logs` - admin-only audit log list
 - `GET /users` - admin-only user list
 - `GET /users/:id` - admin-only user lookup
 - `POST /users` - admin-only user creation

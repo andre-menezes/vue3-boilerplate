@@ -77,6 +77,19 @@ describe('Router', () => {
     expect(document.title).toBe('Users | Vue3 Boilerplate');
   });
 
+  it('permite acessar Profile quando usuário está autenticado', async () => {
+    setActivePinia(createPinia());
+    const router = await createFreshRouter();
+    const authStore = useAuthStore();
+    authStore.token = 'jwt-token';
+
+    await router.push('/profile');
+    await router.isReady();
+
+    expect(router.currentRoute.value.name).toBe('Profile');
+    expect(document.title).toBe('Profile | Vue3 Boilerplate');
+  });
+
   it('redireciona Users para Home quando usuário autenticado não é admin', async () => {
     setActivePinia(createPinia());
     const router = await createFreshRouter();

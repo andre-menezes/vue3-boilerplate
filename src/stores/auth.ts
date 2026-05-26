@@ -57,6 +57,20 @@ export const useAuthStore = defineStore(
       error.value = null;
     }
 
+    async function updateProfile(payload: { name?: string; email?: string; password?: string }) {
+      isLoading.value = true;
+      error.value = null;
+
+      try {
+        user.value = await authService.updateProfile(payload);
+      } catch (err) {
+        error.value = err instanceof Error ? err.message : 'Erro ao atualizar perfil';
+        throw err;
+      } finally {
+        isLoading.value = false;
+      }
+    }
+
     return {
       user,
       token,
@@ -67,6 +81,7 @@ export const useAuthStore = defineStore(
       fullName,
       login,
       register,
+      updateProfile,
       logout,
       clearError,
     };

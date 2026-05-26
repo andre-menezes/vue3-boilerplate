@@ -1,7 +1,9 @@
 import http from './http';
 import type {
+  AuditLog,
   AuthResponse,
   CreateUserPayload,
+  UpdateProfilePayload,
   UpdateUserPayload,
   UserWithoutPassword,
 } from '@app-types/auth';
@@ -35,6 +37,16 @@ export const authService = {
     return response.data;
   },
 
+  async getProfile(): Promise<UserWithoutPassword> {
+    const response = await http.get<UserWithoutPassword>('/profile');
+    return response.data;
+  },
+
+  async updateProfile(payload: UpdateProfilePayload): Promise<UserWithoutPassword> {
+    const response = await http.patch<UserWithoutPassword>('/profile', payload);
+    return response.data;
+  },
+
   async createUser(payload: CreateUserPayload): Promise<UserWithoutPassword> {
     const response = await http.post<UserWithoutPassword>('/users', payload);
     return response.data;
@@ -47,6 +59,11 @@ export const authService = {
 
   async deleteUser(id: string): Promise<void> {
     const response = await http.delete<void>(`/users/${id}`);
+    return response.data;
+  },
+
+  async getAuditLogs(): Promise<AuditLog[]> {
+    const response = await http.get<AuditLog[]>('/audit-logs');
     return response.data;
   },
 };

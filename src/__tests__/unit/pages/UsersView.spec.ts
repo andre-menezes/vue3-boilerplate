@@ -9,6 +9,7 @@ vi.mock('@/services/auth', () => ({
     createUser: vi.fn(),
     updateUser: vi.fn(),
     deleteUser: vi.fn(),
+    getAuditLogs: vi.fn(),
   },
 }));
 
@@ -30,6 +31,8 @@ describe('UsersView', () => {
     vi.mocked(authService.createUser).mockReset();
     vi.mocked(authService.updateUser).mockReset();
     vi.mocked(authService.deleteUser).mockReset();
+    vi.mocked(authService.getAuditLogs).mockReset();
+    vi.mocked(authService.getAuditLogs).mockResolvedValue([]);
     vi.restoreAllMocks();
   });
 
@@ -45,6 +48,24 @@ describe('UsersView', () => {
     expect(wrapper.text()).toContain('Admin User');
     expect(wrapper.text()).toContain('Regular User');
     expect(authService.getUsers).toHaveBeenCalledTimes(1);
+    expect(authService.getAuditLogs).toHaveBeenCalledTimes(1);
+  });
+
+  it('filtra usuários por busca e role', async () => {
+    vi.mocked(authService.getUsers).mockResolvedValueOnce([
+      { id: '1', name: 'Admin User', email: 'admin@example.com', role: 'admin' },
+      { id: '2', name: 'Regular User', email: 'user@example.com', role: 'user' },
+    ]);
+
+    const wrapper = mountUsersView();
+    await flushPromises();
+
+    await wrapper.get('input[type="search"]').setValue('regular');
+    expect(wrapper.text()).not.toContain('Admin User');
+    expect(wrapper.text()).toContain('Regular User');
+
+    await wrapper.get('select').setValue('admin');
+    expect(wrapper.text()).toContain('Nenhum usuário encontrado com os filtros atuais.');
   });
 
   it('exibe estado vazio quando não há usuários', async () => {
@@ -87,6 +108,7 @@ describe('UsersView', () => {
     });
     expect(authService.getUsers).toHaveBeenCalledTimes(2);
     expect(wrapper.text()).toContain('New User');
+    expect(wrapper.text()).toContain('Usuário criado com sucesso.');
   });
 
   it('edita usuário sem enviar password vazio', async () => {
@@ -138,6 +160,27 @@ describe('UsersView', () => {
     expect(window.confirm).toHaveBeenCalledWith('Remover Admin User?');
     expect(authService.deleteUser).toHaveBeenCalledWith('1');
     expect(wrapper.text()).toContain('Nenhum usuário cadastrado.');
+    expect(wrapper.text()).toContain('Usuário removido com sucesso.');
+  });
+
+  it('renderiza auditoria recente', async () => {
+    vi.mocked(authService.getUsers).mockResolvedValueOnce([]);
+    vi.mocked(authService.getAuditLogs).mockResolvedValueOnce([
+      {
+        id: 'log-1',
+        action: 'user.create',
+        actor: { id: '1', name: 'Admin User', email: 'admin@example.com', role: 'admin' },
+        target: { id: '2', name: 'Regular User', email: 'user@example.com', role: 'user' },
+        summary: 'user@example.com foi criado',
+        createdAt: '2026-05-26T10:00:00.000Z',
+      },
+    ]);
+
+    const wrapper = mountUsersView();
+    await flushPromises();
+
+    expect(wrapper.text()).toContain('user@example.com foi criado');
+    expect(wrapper.text()).toContain('admin@example.com');
   });
 
   it('exibe erro quando carregamento falha', async () => {
