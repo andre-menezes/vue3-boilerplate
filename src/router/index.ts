@@ -10,6 +10,12 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true, title: 'Home' },
   },
   {
+    path: '/users',
+    name: 'Users',
+    component: () => import('@pages/UsersView.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true, title: 'Users' },
+  },
+  {
     path: '/login',
     name: 'Login',
     component: () => import('@pages/LoginView.vue'),
@@ -41,6 +47,10 @@ router.beforeEach((to) => {
 
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return { name: 'Login' };
+  }
+
+  if (to.meta.requiresAdmin && !auth.isAdmin) {
+    return { name: 'Home' };
   }
 
   if (to.name === 'Login' && auth.isAuthenticated) {

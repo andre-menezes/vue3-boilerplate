@@ -2,15 +2,21 @@
   <div class="flex min-h-screen flex-col bg-slate-50">
     <!-- ── Navbar ──────────────────────────────────────────────────── -->
     <AppNavbar>
-      <a
-        href="#hero"
+      <RouterLink
+        :to="{ name: 'Home', hash: '#hero' }"
         class="rounded-lg px-3 py-1.5 text-sm font-medium text-primary-500 bg-primary-500/6 transition-colors hover:bg-slate-100 hover:text-slate-900"
-        >Início</a
+        >Início</RouterLink
       >
-      <a
-        href="#features"
+      <RouterLink
+        :to="{ name: 'Home', hash: '#features' }"
         class="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
-        >Funcionalidades</a
+        >Funcionalidades</RouterLink
+      >
+      <RouterLink
+        v-if="authStore.isAdmin"
+        :to="{ name: 'Users' }"
+        class="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+        >Usuários</RouterLink
       >
     </AppNavbar>
 
@@ -148,6 +154,9 @@ import IconPinia from '@/components/icons/IconPinia.vue';
 import IconRouter from '@/components/icons/IconRouter.vue';
 import IconI18n from '@/components/icons/IconI18n.vue';
 import IconAuth from '@/components/icons/IconAuth.vue';
+import { useAuthStore } from '@/stores/auth';
+
+const authStore = useAuthStore();
 
 const stats = [
   { value: 'Vue 3', label: 'Composition API' },

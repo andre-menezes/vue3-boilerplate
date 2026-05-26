@@ -63,7 +63,7 @@ The authentication flow uses `useAuthStore` with persistence through `pinia-plug
 
 - `src/services/http.ts` adds `Authorization: Bearer <token>` to authenticated requests.
 - `401` responses clear authentication and redirect to Login.
-- `src/router/index.ts` protects the Home route and redirects authenticated users away from Login.
+- `src/router/index.ts` protects authenticated routes, restricts user management to admins, and redirects authenticated users away from Login.
 
 Local test credentials:
 
@@ -76,14 +76,14 @@ Local test credentials:
 
 - `POST /login` - public login endpoint
 - `POST /register` - public account creation endpoint
-- `GET /users` - protected user list
-- `GET /users/:id` - protected user lookup
-- `POST /users` - protected user creation
-- `PUT /users/:id` - protected full user update
-- `PATCH /users/:id` - protected partial user update
-- `DELETE /users/:id` - protected user removal
+- `GET /users` - admin-only user list
+- `GET /users/:id` - admin-only user lookup
+- `POST /users` - admin-only user creation
+- `PUT /users/:id` - admin-only full user update
+- `PATCH /users/:id` - admin-only partial user update
+- `DELETE /users/:id` - admin-only user removal
 
-Protected endpoints require `Authorization: Bearer <token>`. Data is persisted in `db.json`, and user responses never include `password`.
+Admin-only endpoints require `Authorization: Bearer <token>` from an admin user. Data is persisted in `db.json`, and user responses never include `password`.
 
 ## Environment variables
 

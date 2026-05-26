@@ -48,6 +48,53 @@ describe('Router', () => {
     expect(router.currentRoute.value.name).toBe('Home');
   });
 
+  it('redireciona Users para Login quando não há token', async () => {
+    setActivePinia(createPinia());
+    const router = await createFreshRouter();
+
+    await router.push('/users');
+    await router.isReady();
+
+    expect(router.currentRoute.value.name).toBe('Login');
+  });
+
+  it('permite acessar Users quando usuário está autenticado', async () => {
+    setActivePinia(createPinia());
+    const router = await createFreshRouter();
+    const authStore = useAuthStore();
+    authStore.token = 'jwt-token';
+    authStore.user = {
+      id: '1',
+      name: 'Admin User',
+      email: 'admin@example.com',
+      role: 'admin',
+    };
+
+    await router.push('/users');
+    await router.isReady();
+
+    expect(router.currentRoute.value.name).toBe('Users');
+    expect(document.title).toBe('Users | Vue3 Boilerplate');
+  });
+
+  it('redireciona Users para Home quando usuário autenticado não é admin', async () => {
+    setActivePinia(createPinia());
+    const router = await createFreshRouter();
+    const authStore = useAuthStore();
+    authStore.token = 'jwt-token';
+    authStore.user = {
+      id: '2',
+      name: 'Regular User',
+      email: 'user@example.com',
+      role: 'user',
+    };
+
+    await router.push('/users');
+    await router.isReady();
+
+    expect(router.currentRoute.value.name).toBe('Home');
+  });
+
   it('renderiza NotFound para rota desconhecida', async () => {
     setActivePinia(createPinia());
     const router = await createFreshRouter();
