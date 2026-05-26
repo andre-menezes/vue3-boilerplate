@@ -2,15 +2,20 @@
   <div class="flex min-h-screen flex-col bg-slate-50">
     <!-- ── Navbar ──────────────────────────────────────────────────── -->
     <AppNavbar>
-      <a
-        href="#hero"
+      <RouterLink
+        :to="{ name: 'Home', hash: '#hero' }"
         class="rounded-lg px-3 py-1.5 text-sm font-medium text-primary-500 bg-primary-500/6 transition-colors hover:bg-slate-100 hover:text-slate-900"
-        >Início</a
+        >Início</RouterLink
       >
-      <a
-        href="#features"
+      <RouterLink
+        :to="{ name: 'Home', hash: '#features' }"
         class="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
-        >Funcionalidades</a
+        >Funcionalidades</RouterLink
+      >
+      <RouterLink
+        :to="{ name: 'Users' }"
+        class="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+        >Usuários</RouterLink
       >
     </AppNavbar>
 
