@@ -8,11 +8,6 @@
         >Início</RouterLink
       >
       <RouterLink
-        :to="{ name: 'Home', hash: '#features' }"
-        class="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
-        >Funcionalidades</RouterLink
-      >
-      <RouterLink
         v-if="authStore.isAdmin"
         :to="{ name: 'Users' }"
         class="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
