@@ -12,7 +12,7 @@ Vue 3 boilerplate with TypeScript, Vite, Pinia, Vue Router, Tailwind CSS v4, vue
 - Tailwind CSS v4
 - vue-i18n with `pt-BR` and `en-US`
 - Axios with JWT interceptors
-- Vitest, Vue Test Utils, and Playwright
+- Vitest and Vue Test Utils
 
 ## Requirements
 
@@ -49,9 +49,6 @@ yarn test:run
 
 # Coverage
 yarn test:coverage
-
-# E2E with Playwright
-yarn test:e2e
 
 # Lint
 yarn lint
@@ -118,14 +115,14 @@ src/
 ## Tests
 
 - Vitest covers stores, services, router, and the main components/pages.
-- Playwright covers the browser authentication flow with mocked authentication calls.
+- The project keeps a unit/integration test approach only.
 - Minimum coverage thresholds are configured in `vitest.config.ts`.
 
 ## Continuous integration
 
 GitHub Actions runs on pull requests and pushes targeting `develop` or `main`.
 
-The CI workflow installs dependencies with Yarn, then runs lint, coverage, build, and Playwright E2E checks.
+The CI workflow installs dependencies with Yarn, then runs lint, coverage, and build checks.
 
 ## Branching workflow
 

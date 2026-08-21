@@ -10,6 +10,16 @@ const instance = createHttpClient({
   },
 });
 
+instance.httpClient.interceptors.request.use((config) => {
+  const authStore = useAuthStore();
+
+  if (authStore.token && config.headers) {
+    config.headers.Authorization = `Bearer ${authStore.token}`;
+  }
+
+  return config;
+});
+
 instance.httpClient.interceptors.response.use(
   (response) => response,
   (error) => {

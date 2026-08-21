@@ -26,9 +26,6 @@ yarn test:run src/path/to/file.spec.ts
 # Test coverage
 yarn test:coverage
 
-# E2E tests (starts the Vite dev server and mocks auth API calls)
-yarn test:e2e
-
 # Lint
 yarn lint
 ```
@@ -132,4 +129,4 @@ Commits follow Conventional Commits (`@commitlint/config-conventional`). Husky r
   - `docs/short-description` for documentation
 - Open pull requests from work branches into `develop` by default.
 - Open pull requests from `develop` into `main` only when the integrated version is ready for release.
-- Run the relevant `yarn` checks before pushing or opening a PR. For code changes, use at least `yarn lint`, `yarn test:run`, and `yarn build`; include `yarn test:e2e` when the change affects routed user flows.
+- Run the relevant `yarn` checks before pushing or opening a PR. For code changes, use at least `yarn lint`, `yarn test:run`, and `yarn build`.

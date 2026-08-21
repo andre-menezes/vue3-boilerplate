@@ -75,7 +75,7 @@ describe('HTTP Service', () => {
     });
 
     expect(withCredentials).toBe(true);
-    expect(authorization).toBeUndefined();
+    expect(authorization).toBe('Bearer jwt-token');
   });
 
   it('não deve enviar Authorization quando não há token', async () => {

@@ -3,6 +3,26 @@ import { ref, computed } from 'vue';
 import type { UserWithoutPassword } from '@app-types/auth';
 import { authService } from '@/services/auth';
 
+const readPersistedSession = () => {
+  try {
+    const raw = localStorage.getItem('auth');
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as { user?: UserWithoutPassword | null; token?: string | null };
+
+    if (parsed?.token && parsed?.user) {
+      return {
+        user: parsed.user,
+        token: parsed.token,
+      };
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+};
+
 export const useAuthStore = defineStore(
   'auth',
   () => {
@@ -17,6 +37,14 @@ export const useAuthStore = defineStore(
     const fullName = computed(() => user.value?.name ?? '');
 
     async function restoreSession() {
+      const storedSession = readPersistedSession();
+
+      if (storedSession) {
+        user.value = storedSession.user;
+        token.value = storedSession.token;
+        return;
+      }
+
       const persistedToken = token.value;
 
       try {

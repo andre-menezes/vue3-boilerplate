@@ -119,6 +119,32 @@ describe('Auth Store', () => {
     expect(store.isAuthenticated).toBe(true);
   });
 
+  it('deve ler o token persistido do localStorage quando o store ainda está vazio', async () => {
+    const user = {
+      id: '1',
+      name: 'Admin User',
+      email: 'admin@example.com',
+      role: 'admin' as const,
+    };
+
+    localStorage.setItem(
+      'auth',
+      JSON.stringify({
+        user,
+        token: 'persisted-token-from-storage',
+      })
+    );
+
+    const store = useAuthStore();
+    vi.mocked(authService.getProfile).mockResolvedValue(user);
+
+    await store.restoreSession();
+
+    expect(store.user).toEqual(user);
+    expect(store.token).toBe('persisted-token-from-storage');
+    expect(store.isAuthenticated).toBe(true);
+  });
+
   it('deve autenticar e preencher estado ao fazer login com sucesso', async () => {
     const store = useAuthStore();
     const user = {
