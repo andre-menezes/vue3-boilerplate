@@ -100,6 +100,25 @@ describe('Auth Store', () => {
     expect(store.isAuthenticated).toBe(false);
   });
 
+  it('deve preservar o token persistido ao restaurar a sessão', async () => {
+    const store = useAuthStore();
+    const user = {
+      id: '1',
+      name: 'Admin User',
+      email: 'admin@example.com',
+      role: 'admin' as const,
+    };
+
+    store.token = 'persisted-token';
+    vi.mocked(authService.getProfile).mockResolvedValue(user);
+
+    await store.restoreSession();
+
+    expect(store.user).toEqual(user);
+    expect(store.token).toBe('persisted-token');
+    expect(store.isAuthenticated).toBe(true);
+  });
+
   it('deve autenticar e preencher estado ao fazer login com sucesso', async () => {
     const store = useAuthStore();
     const user = {

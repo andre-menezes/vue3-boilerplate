@@ -17,10 +17,12 @@ export const useAuthStore = defineStore(
     const fullName = computed(() => user.value?.name ?? '');
 
     async function restoreSession() {
+      const persistedToken = token.value;
+
       try {
         const profile = await authService.getProfile();
         user.value = profile;
-        token.value = null;
+        token.value = persistedToken ?? null;
       } catch {
         user.value = null;
         token.value = null;
