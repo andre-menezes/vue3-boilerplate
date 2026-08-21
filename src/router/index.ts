@@ -10,6 +10,18 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true, title: 'Home' },
   },
   {
+    path: '/users',
+    name: 'Users',
+    component: () => import('@pages/UsersView.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true, title: 'Users' },
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: () => import('@pages/ProfileView.vue'),
+    meta: { requiresAuth: true, title: 'Profile' },
+  },
+  {
     path: '/login',
     name: 'Login',
     component: () => import('@pages/LoginView.vue'),
@@ -28,10 +40,15 @@ const router = createRouter({
   scrollBehavior: () => ({ top: 0, behavior: 'smooth' }),
 });
 
-// pinia-plugin-persistedstate v4 restaura estado sincronamente na primeira
-// chamada de useAuthStore(), então não há necessidade de espera assíncrona.
-router.beforeEach((to) => {
+// pinia-plugin-persistedstate restaura o estado local antes do primeiro uso,
+// mas a validação do perfil pode ainda precisar terminar antes de decidir a rota.
+router.beforeEach(async (to) => {
   const auth = useAuthStore();
+
+  if (!auth.isAuthenticated && !auth.isLoading) {
+    await auth.restoreSession();
+  }
+
   const title =
     to.matched
       .slice()
@@ -41,6 +58,10 @@ router.beforeEach((to) => {
 
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return { name: 'Login' };
+  }
+
+  if (to.meta.requiresAdmin && !auth.isAdmin) {
+    return { name: 'Home' };
   }
 
   if (to.name === 'Login' && auth.isAuthenticated) {

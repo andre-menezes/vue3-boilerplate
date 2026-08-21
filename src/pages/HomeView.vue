@@ -2,16 +2,20 @@
   <div class="flex min-h-screen flex-col bg-slate-50">
     <!-- ── Navbar ──────────────────────────────────────────────────── -->
     <AppNavbar>
-      <a
-        href="#hero"
+      <RouterLink
+        :to="{ name: 'Home', hash: '#hero' }"
         class="rounded-lg px-3 py-1.5 text-sm font-medium text-primary-500 bg-primary-500/6 transition-colors hover:bg-slate-100 hover:text-slate-900"
-        >Início</a
       >
-      <a
-        href="#features"
+        Início
+      </RouterLink>
+
+      <RouterLink
+        v-if="authStore.isAdmin"
+        :to="{ name: 'Users' }"
         class="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
-        >Funcionalidades</a
       >
+        Usuários
+      </RouterLink>
     </AppNavbar>
 
     <!-- ── Main ──────────────────────────────────────────────────────── -->
@@ -27,7 +31,7 @@
               <svg width="8" height="8" viewBox="0 0 10 10" fill="currentColor">
                 <circle cx="5" cy="5" r="5" />
               </svg>
-              v1.0 — Boilerplate pronto para uso
+              {{ authStore.isAdmin ? 'Admin console' : 'Área autenticada' }}
             </span>
           </div>
 
@@ -42,8 +46,7 @@
           </h1>
 
           <p class="max-w-120 text-[1.0625rem] leading-relaxed text-slate-500">
-            Um template completo e opinado para construir aplicações Vue 3 modernas. Autenticação,
-            i18n, roteamento e muito mais — tudo configurado.
+            {{ heroDescription }}
           </p>
 
           <div class="flex flex-wrap gap-3">
@@ -53,6 +56,12 @@
             >
               Ver funcionalidades
             </a>
+            <RouterLink
+              :to="{ name: 'Profile' }"
+              class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
+            >
+              Meu perfil
+            </RouterLink>
             <a
               href="https://github.com"
               target="_blank"
@@ -90,6 +99,18 @@
           <span class="text-xs font-medium text-slate-400">{{ stat.label }}</span>
         </div>
       </div>
+
+      <section class="mb-16 grid grid-cols-1 gap-4 md:grid-cols-3">
+        <article
+          v-for="card in dashboardCards"
+          :key="card.title"
+          class="rounded-lg border border-slate-200 bg-white p-5 shadow-card"
+        >
+          <p class="text-xs font-semibold uppercase text-primary-600">{{ card.label }}</p>
+          <h2 class="mt-2 text-base font-bold text-slate-900">{{ card.title }}</h2>
+          <p class="mt-2 text-sm leading-6 text-slate-500">{{ card.description }}</p>
+        </article>
+      </section>
 
       <!-- Features -->
       <section id="features" class="pb-20">
@@ -139,6 +160,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import homeImg from '@/assets/home-illustration.svg';
 import AppNavbar from '@/components/AppNavbar.vue';
 import AppFooter from '@/components/AppFooter.vue';
@@ -148,6 +170,53 @@ import IconPinia from '@/components/icons/IconPinia.vue';
 import IconRouter from '@/components/icons/IconRouter.vue';
 import IconI18n from '@/components/icons/IconI18n.vue';
 import IconAuth from '@/components/icons/IconAuth.vue';
+import { useAuthStore } from '@/stores/auth';
+
+const authStore = useAuthStore();
+
+const heroDescription = computed(() =>
+  authStore.isAdmin
+    ? 'Gerencie usuários, acompanhe atividades recentes e valide o fluxo de autenticação com permissões administrativas.'
+    : 'Acesse seu perfil, mantenha seus dados atualizados e use a base autenticada do boilerplate.'
+);
+
+const dashboardCards = computed(() =>
+  authStore.isAdmin
+    ? [
+        {
+          label: 'Admin',
+          title: 'Gestão de usuários',
+          description: 'Crie, edite e remova contas com proteção por papel administrativo.',
+        },
+        {
+          label: 'Auditoria',
+          title: 'Atividades recentes',
+          description: 'Acompanhe alterações feitas em usuários e perfis no mock API.',
+        },
+        {
+          label: 'Segurança',
+          title: 'Acesso restrito',
+          description: 'Rotas e endpoints sensíveis validam JWT e papel de administrador.',
+        },
+      ]
+    : [
+        {
+          label: 'Conta',
+          title: 'Meu perfil',
+          description: 'Atualize nome, email e senha sem depender de um administrador.',
+        },
+        {
+          label: 'Sessão',
+          title: 'Autenticação JWT',
+          description: 'A sessão usa token persistido e interceptors para chamadas autenticadas.',
+        },
+        {
+          label: 'Permissões',
+          title: 'Acesso de usuário',
+          description: 'Áreas administrativas ficam ocultas e bloqueadas para usuários comuns.',
+        },
+      ]
+);
 
 const stats = [
   { value: 'Vue 3', label: 'Composition API' },
@@ -199,11 +268,10 @@ const featureList = [
   },
   {
     title: 'Auth JWT + API',
-    description:
-      'Autenticação completa com JWT, interceptors Axios e backend mock com json-server.',
+    description: 'Autenticação completa com JWT, interceptors Axios e backend mock configurável.',
     icon: IconAuth,
     iconClass: 'bg-rose-500/12 text-rose-600',
-    tags: ['JWT', 'Axios', 'json-server'],
+    tags: ['JWT', 'Axios', 'Mock API'],
   },
 ];
 </script>

@@ -3,6 +3,26 @@ import { ref, computed } from 'vue';
 import type { UserWithoutPassword } from '@app-types/auth';
 import { authService } from '@/services/auth';
 
+const readPersistedSession = () => {
+  try {
+    const raw = localStorage.getItem('auth');
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as { user?: UserWithoutPassword | null; token?: string | null };
+
+    if (parsed?.token && parsed?.user) {
+      return {
+        user: parsed.user,
+        token: parsed.token,
+      };
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+};
+
 export const useAuthStore = defineStore(
   'auth',
   () => {
@@ -12,8 +32,30 @@ export const useAuthStore = defineStore(
     const error = ref<string | null>(null);
 
     // getters
-    const isAuthenticated = computed(() => !!token.value);
+    const isAuthenticated = computed(() => !!token.value || !!user.value);
+    const isAdmin = computed(() => user.value?.role === 'admin');
     const fullName = computed(() => user.value?.name ?? '');
+
+    async function restoreSession() {
+      const storedSession = readPersistedSession();
+
+      if (storedSession) {
+        user.value = storedSession.user;
+        token.value = storedSession.token;
+        return;
+      }
+
+      const persistedToken = token.value;
+
+      try {
+        const profile = await authService.getProfile();
+        user.value = profile;
+        token.value = persistedToken ?? null;
+      } catch {
+        user.value = null;
+        token.value = null;
+      }
+    }
 
     // actions
     async function login(email: string, password: string) {
@@ -22,7 +64,7 @@ export const useAuthStore = defineStore(
       try {
         const response = await authService.login(email, password);
         user.value = response.user;
-        token.value = response.accessToken;
+        token.value = response.accessToken ?? null;
       } catch (err) {
         error.value = err instanceof Error ? err.message : 'Erro ao fazer login';
         throw err;
@@ -37,7 +79,7 @@ export const useAuthStore = defineStore(
       try {
         const response = await authService.register(email, password, name);
         user.value = response.user;
-        token.value = response.accessToken;
+        token.value = response.accessToken ?? null;
       } catch (err) {
         error.value = err instanceof Error ? err.message : 'Erro ao registrar';
         throw err;
@@ -46,14 +88,34 @@ export const useAuthStore = defineStore(
       }
     }
 
-    function logout() {
+    async function logout() {
       user.value = null;
       token.value = null;
       error.value = null;
+
+      try {
+        await authService.logout();
+      } catch {
+        // ignora falha do logout do servidor para limpar o cliente localmente
+      }
     }
 
     function clearError() {
       error.value = null;
+    }
+
+    async function updateProfile(payload: { name?: string; email?: string; password?: string }) {
+      isLoading.value = true;
+      error.value = null;
+
+      try {
+        user.value = await authService.updateProfile(payload);
+      } catch (err) {
+        error.value = err instanceof Error ? err.message : 'Erro ao atualizar perfil';
+        throw err;
+      } finally {
+        isLoading.value = false;
+      }
     }
 
     return {
@@ -62,14 +124,19 @@ export const useAuthStore = defineStore(
       isLoading,
       error,
       isAuthenticated,
+      isAdmin,
       fullName,
+      restoreSession,
       login,
       register,
+      updateProfile,
       logout,
       clearError,
     };
   },
   {
-    persist: true,
+    persist: {
+      pick: ['user', 'token'],
+    },
   }
 );

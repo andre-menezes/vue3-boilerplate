@@ -8,7 +8,7 @@ interface User {
 
 interface AuthResponse {
   user: Omit<User, 'password'>;
-  accessToken: string;
+  accessToken?: string;
 }
 
 interface LoginPayload {
@@ -22,5 +22,36 @@ interface RegisterPayload extends LoginPayload {
 }
 
 type UserWithoutPassword = Omit<User, 'password'>;
+type UserRole = User['role'];
 
-export type { User, AuthResponse, LoginPayload, RegisterPayload, UserWithoutPassword };
+interface CreateUserPayload {
+  name: string;
+  email: string;
+  password: string;
+  role?: UserRole;
+}
+
+type UpdateUserPayload = Partial<CreateUserPayload>;
+type UpdateProfilePayload = Partial<Pick<CreateUserPayload, 'name' | 'email' | 'password'>>;
+
+interface AuditLog {
+  id: string;
+  action: 'profile.update' | 'user.create' | 'user.update' | 'user.delete';
+  actor: UserWithoutPassword | null;
+  target: UserWithoutPassword | null;
+  summary: string;
+  createdAt: string;
+}
+
+export type {
+  User,
+  AuthResponse,
+  LoginPayload,
+  RegisterPayload,
+  UserWithoutPassword,
+  UserRole,
+  CreateUserPayload,
+  UpdateUserPayload,
+  UpdateProfilePayload,
+  AuditLog,
+};

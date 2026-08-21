@@ -26,8 +26,11 @@
       <!-- Actions -->
       <div class="ml-auto flex items-center gap-3">
         <!-- User chip -->
-        <div
-          class="flex items-center gap-2 rounded-full border border-slate-200 bg-white py-1 pl-1 pr-2.5 shadow-[0_1px_2px_rgb(0_0_0/0.04)]"
+        <button
+          type="button"
+          class="profile-btn"
+          title="Perfil"
+          @click="router.push({ name: 'Profile' })"
         >
           <div
             class="flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary-500 to-primary-600 text-[0.6875rem] font-bold text-white"
@@ -37,7 +40,7 @@
           <span class="text-[0.8125rem] font-medium whitespace-nowrap text-slate-800">
             {{ authStore.fullName }}
           </span>
-        </div>
+        </button>
 
         <!-- Logout -->
         <button
@@ -46,15 +49,7 @@
           :title="$t('auth.logout')"
           @click="handleLogout"
         >
-          <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-            <path
-              d="M6 2H2.5a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5H6M9.5 10.5 13 7.5 9.5 4.5M13 7.5H5.5"
-              stroke="currentColor"
-              stroke-width="1.4"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
+          <s-icon name="Logout2" />
           <span class="hidden sm:inline">{{ $t('auth.logout') }}</span>
         </button>
       </div>
@@ -102,6 +97,24 @@ function handleLogout() {
   cursor: pointer;
   transition: all 0.15s;
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+}
+
+.profile-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.625rem 0.25rem 0.25rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-slate-200);
+  background: var(--color-surface);
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+}
+
+.profile-btn:hover {
+  border-color: rgb(var(--rgb-primary) / 0.3);
+  background: rgb(var(--rgb-primary) / 0.04);
 }
 
 .logout-btn:hover {
