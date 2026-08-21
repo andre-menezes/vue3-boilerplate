@@ -8,8 +8,11 @@ vi.mock('@/services/auth', () => ({
   authService: {
     login: vi.fn(),
     register: vi.fn(),
+    logout: vi.fn(),
+    updateProfile: vi.fn(),
     getUsers: vi.fn(),
     getUserById: vi.fn(),
+    getProfile: vi.fn(),
   },
 }));
 
@@ -82,18 +85,64 @@ describe('Auth Store', () => {
     expect(store.error).toBeNull();
   });
 
-  it('deve limpar estado com logout()', () => {
+  it('deve limpar estado com logout()', async () => {
     const store = useAuthStore();
     store.user = { id: '1', name: 'John', email: 'john@example.com', role: 'user' };
     store.token = 'test-token';
     store.error = 'Some error';
 
-    store.logout();
+    vi.mocked(authService.logout).mockResolvedValue();
+    await store.logout();
 
     expect(store.user).toBeNull();
     expect(store.token).toBeNull();
     expect(store.error).toBeNull();
     expect(store.isAuthenticated).toBe(false);
+  });
+
+  it('deve preservar o token persistido ao restaurar a sessão', async () => {
+    const store = useAuthStore();
+    const user = {
+      id: '1',
+      name: 'Admin User',
+      email: 'admin@example.com',
+      role: 'admin' as const,
+    };
+
+    store.token = 'persisted-token';
+    vi.mocked(authService.getProfile).mockResolvedValue(user);
+
+    await store.restoreSession();
+
+    expect(store.user).toEqual(user);
+    expect(store.token).toBe('persisted-token');
+    expect(store.isAuthenticated).toBe(true);
+  });
+
+  it('deve ler o token persistido do localStorage quando o store ainda está vazio', async () => {
+    const user = {
+      id: '1',
+      name: 'Admin User',
+      email: 'admin@example.com',
+      role: 'admin' as const,
+    };
+
+    localStorage.setItem(
+      'auth',
+      JSON.stringify({
+        user,
+        token: 'persisted-token-from-storage',
+      })
+    );
+
+    const store = useAuthStore();
+    vi.mocked(authService.getProfile).mockResolvedValue(user);
+
+    await store.restoreSession();
+
+    expect(store.user).toEqual(user);
+    expect(store.token).toBe('persisted-token-from-storage');
+    expect(store.isAuthenticated).toBe(true);
   });
 
   it('deve autenticar e preencher estado ao fazer login com sucesso', async () => {
@@ -160,6 +209,35 @@ describe('Auth Store', () => {
     expect(store.user).toEqual(user);
     expect(store.token).toBe('register-token');
     expect(store.isAuthenticated).toBe(true);
+    expect(store.error).toBeNull();
+    expect(store.isLoading).toBe(false);
+  });
+
+  it('deve atualizar perfil e sincronizar usuário autenticado', async () => {
+    const store = useAuthStore();
+    store.user = {
+      id: '1',
+      name: 'Admin User',
+      email: 'admin@example.com',
+      role: 'admin',
+    };
+
+    const updatedUser = {
+      id: '1',
+      name: 'Admin Updated',
+      email: 'admin.updated@example.com',
+      role: 'admin' as const,
+    };
+
+    vi.mocked(authService.updateProfile).mockResolvedValue(updatedUser);
+
+    await store.updateProfile({ name: 'Admin Updated', email: 'admin.updated@example.com' });
+
+    expect(authService.updateProfile).toHaveBeenCalledWith({
+      name: 'Admin Updated',
+      email: 'admin.updated@example.com',
+    });
+    expect(store.user).toEqual(updatedUser);
     expect(store.error).toBeNull();
     expect(store.isLoading).toBe(false);
   });

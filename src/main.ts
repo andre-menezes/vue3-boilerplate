@@ -5,6 +5,9 @@ import { loadPlugins } from './plugins';
 
 export const app = createApp(App);
 
-loadPlugins(app);
+async function bootstrap() {
+  await loadPlugins(app);
+  app.mount('#app');
+}
 
-app.mount('#app');
+void bootstrap();

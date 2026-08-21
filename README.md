@@ -12,7 +12,7 @@ Vue 3 boilerplate with TypeScript, Vite, Pinia, Vue Router, Tailwind CSS v4, vue
 - Tailwind CSS v4
 - vue-i18n with `pt-BR` and `en-US`
 - Axios with JWT interceptors
-- Vitest, Vue Test Utils, and Playwright
+- Vitest and Vue Test Utils
 
 ## Requirements
 
@@ -50,9 +50,6 @@ yarn test:run
 # Coverage
 yarn test:coverage
 
-# E2E with Playwright
-yarn test:e2e
-
 # Lint
 yarn lint
 ```
@@ -64,6 +61,7 @@ The authentication flow uses `useAuthStore` with persistence through `pinia-plug
 - `src/services/http.ts` adds `Authorization: Bearer <token>` to authenticated requests.
 - `401` responses clear authentication and redirect to Login.
 - `src/router/index.ts` protects authenticated routes, restricts user management to admins, and redirects authenticated users away from Login.
+- The mock API stores passwords as plain text only for local development. Do not reuse this behavior in production.
 
 Local test credentials:
 
@@ -76,6 +74,9 @@ Local test credentials:
 
 - `POST /login` - public login endpoint
 - `POST /register` - public account creation endpoint
+- `GET /profile` - authenticated profile lookup
+- `PATCH /profile` - authenticated profile update
+- `GET /audit-logs` - admin-only audit log list
 - `GET /users` - admin-only user list
 - `GET /users/:id` - admin-only user lookup
 - `POST /users` - admin-only user creation
@@ -114,14 +115,14 @@ src/
 ## Tests
 
 - Vitest covers stores, services, router, and the main components/pages.
-- Playwright covers the browser authentication flow with mocked authentication calls.
+- The project keeps a unit/integration test approach only.
 - Minimum coverage thresholds are configured in `vitest.config.ts`.
 
 ## Continuous integration
 
 GitHub Actions runs on pull requests and pushes targeting `develop` or `main`.
 
-The CI workflow installs dependencies with Yarn, then runs lint, coverage, build, and Playwright E2E checks.
+The CI workflow installs dependencies with Yarn, then runs lint, coverage, and build checks.
 
 ## Branching workflow
 

@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import http from '@/services/http';
+import http from '@/services/instance';
 import { authService } from '@/services/auth';
 
-vi.mock('@/services/http', () => ({
+vi.mock('@/services/instance', () => ({
   default: {
     post: vi.fn(),
     get: vi.fn(),
@@ -64,6 +64,30 @@ describe('Auth Service', () => {
     expect(http.get).toHaveBeenCalledWith('/users/550e8400');
   });
 
+  it('deve buscar perfil autenticado', async () => {
+    const user = { id: '1', name: 'Admin User', email: 'admin@example.com', role: 'admin' as const };
+
+    vi.mocked(http.get).mockResolvedValueOnce({ data: user });
+
+    await expect(authService.getProfile()).resolves.toEqual(user);
+    expect(http.get).toHaveBeenCalledWith('/profile');
+  });
+
+  it('deve atualizar perfil autenticado', async () => {
+    const payload = { name: 'Admin Updated', email: 'admin.updated@example.com' };
+    const response = {
+      id: '1',
+      name: 'Admin Updated',
+      email: 'admin.updated@example.com',
+      role: 'admin' as const,
+    };
+
+    vi.mocked(http.patch).mockResolvedValueOnce({ data: response });
+
+    await expect(authService.updateProfile(payload)).resolves.toEqual(response);
+    expect(http.patch).toHaveBeenCalledWith('/profile', payload);
+  });
+
   it('deve criar usuário com endpoint e payload corretos', async () => {
     const payload = {
       name: 'New User',
@@ -107,5 +131,23 @@ describe('Auth Service', () => {
 
     await expect(authService.deleteUser('3')).resolves.toBeUndefined();
     expect(http.delete).toHaveBeenCalledWith('/users/3');
+  });
+
+  it('deve buscar logs de auditoria', async () => {
+    const logs = [
+      {
+        id: 'log-1',
+        action: 'user.create' as const,
+        actor: { id: '1', name: 'Admin User', email: 'admin@example.com', role: 'admin' as const },
+        target: { id: '2', name: 'Regular User', email: 'user@example.com', role: 'user' as const },
+        summary: 'user@example.com foi criado',
+        createdAt: '2026-05-26T10:00:00.000Z',
+      },
+    ];
+
+    vi.mocked(http.get).mockResolvedValueOnce({ data: logs });
+
+    await expect(authService.getAuditLogs()).resolves.toEqual(logs);
+    expect(http.get).toHaveBeenCalledWith('/audit-logs');
   });
 });
