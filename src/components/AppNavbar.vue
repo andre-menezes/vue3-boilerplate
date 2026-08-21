@@ -49,15 +49,7 @@
           :title="$t('auth.logout')"
           @click="handleLogout"
         >
-          <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-            <path
-              d="M6 2H2.5a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5H6M9.5 10.5 13 7.5 9.5 4.5M13 7.5H5.5"
-              stroke="currentColor"
-              stroke-width="1.4"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
+          <s-icon name="Logout2" />
           <span class="hidden sm:inline">{{ $t('auth.logout') }}</span>
         </button>
       </div>

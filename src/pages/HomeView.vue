@@ -5,14 +5,17 @@
       <RouterLink
         :to="{ name: 'Home', hash: '#hero' }"
         class="rounded-lg px-3 py-1.5 text-sm font-medium text-primary-500 bg-primary-500/6 transition-colors hover:bg-slate-100 hover:text-slate-900"
-        >Início</RouterLink
       >
+        Início
+      </RouterLink>
+
       <RouterLink
         v-if="authStore.isAdmin"
         :to="{ name: 'Users' }"
         class="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
-        >Usuários</RouterLink
       >
+        Usuários
+      </RouterLink>
     </AppNavbar>
 
     <!-- ── Main ──────────────────────────────────────────────────────── -->

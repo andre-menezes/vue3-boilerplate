@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import http from '@/services/http';
+import http from '@/services/instance';
 import { authService } from '@/services/auth';
 
-vi.mock('@/services/http', () => ({
+vi.mock('@/services/instance', () => ({
   default: {
     post: vi.fn(),
     get: vi.fn(),

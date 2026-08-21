@@ -31,7 +31,7 @@
           :disabled="isSaving"
           @click="startCreate"
         >
-          <span aria-hidden="true">+</span>
+          <s-icon name="AddCircle" />
           Novo usuário
         </button>
       </header>
@@ -58,10 +58,11 @@
             <h2 class="text-base font-bold text-slate-900">Usuários</h2>
             <button
               type="button"
-              class="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+              class="flex gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
               :disabled="isLoading"
               @click="loadUsers"
             >
+              <s-icon name="Refresh" />
               Atualizar
             </button>
           </div>
@@ -135,18 +136,20 @@
                     <div class="flex justify-end gap-2">
                       <button
                         type="button"
-                        class="rounded-md border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50"
+                        class="flex gap-2 rounded-md border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50"
                         :aria-label="`Editar ${user.name}`"
                         @click="startEdit(user)"
                       >
+                        <s-icon name="Pen" />
                         Editar
                       </button>
                       <button
                         type="button"
-                        class="rounded-md border border-danger-600/25 px-2.5 py-1.5 text-xs font-semibold text-danger-600 transition-colors hover:bg-danger-600/5"
+                        class="flex gap-2 rounded-md border border-danger-600/25 px-2.5 py-1.5 text-xs font-semibold text-danger-600 transition-colors hover:bg-danger-600/5"
                         :aria-label="`Remover ${user.name}`"
                         @click="deleteUser(user)"
                       >
+                        <s-icon name="TrashBinTrash" />
                         Remover
                       </button>
                     </div>
@@ -164,19 +167,21 @@
               <div class="flex gap-2">
                 <button
                   type="button"
-                  class="rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  class="flex gap-2 rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                   :disabled="currentPage === 1"
                   @click="currentPage -= 1"
                 >
+                  <s-icon name="ArrowLeft" />
                   Anterior
                 </button>
                 <button
                   type="button"
-                  class="rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  class="flex gap-2 rounded-md border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                   :disabled="currentPage === totalPages"
                   @click="currentPage += 1"
                 >
                   Próxima
+                  <s-icon name="ArrowRight" />
                 </button>
               </div>
             </div>

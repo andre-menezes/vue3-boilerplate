@@ -13,6 +13,12 @@ const API_PORT = Number.isNaN(parsedApiPort) ? 3000 : parsedApiPort;
 const JWT_SECRET = process.env.JWT_SECRET ?? 'dev-secret-change-me';
 const MOCK_DEFAULT_PASSWORD = '123456';
 const LEGACY_HASH_PREFIX = '$2a$';
+const ALLOWED_ORIGINS = new Set([
+  'http://localhost:8080',
+  'http://127.0.0.1:8080',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+]);
 const DEFAULT_USERS = [
   {
     id: '550e8400-e29b-41d4-a716-446655440000',
@@ -33,6 +39,40 @@ const DEFAULT_USERS = [
 await db.read();
 
 const app = new App();
+
+const parseCookies = (cookieHeader = '') =>
+  cookieHeader
+    .split(';')
+    .map((cookie) => cookie.trim())
+    .filter(Boolean)
+    .reduce((cookies, cookie) => {
+      const separatorIndex = cookie.indexOf('=');
+
+      if (separatorIndex === -1) {
+        cookies[cookie] = '';
+        return cookies;
+      }
+
+      const name = cookie.slice(0, separatorIndex).trim();
+      const value = decodeURIComponent(cookie.slice(separatorIndex + 1).trim());
+
+      cookies[name] = value;
+      return cookies;
+    }, {});
+
+const setAuthCookie = (res, token) => {
+  const secureFlag = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+  const cookieValue = `access_token=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400${secureFlag}`;
+
+  res.setHeader('Set-Cookie', cookieValue);
+};
+
+const clearAuthCookie = (res) => {
+  const secureFlag = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+  const cookieValue = `access_token=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secureFlag}`;
+
+  res.setHeader('Set-Cookie', cookieValue);
+};
 
 const ensureUsers = () => {
   if (!Array.isArray(db.data.users)) {
@@ -85,7 +125,10 @@ const createToken = (user) =>
 
 const requireAuth = (req, res, next) => {
   const authorization = req.headers.authorization;
-  const token = authorization?.startsWith('Bearer ') ? authorization.slice(7) : undefined;
+  const cookies = parseCookies(req.headers.cookie);
+  const tokenFromCookie = cookies.access_token;
+  const token =
+    tokenFromCookie ?? (authorization?.startsWith('Bearer ') ? authorization.slice(7) : undefined);
 
   if (!token) {
     return res.status(401).json({ error: 'Token de autenticação obrigatório' });
@@ -161,16 +204,23 @@ normalizeMockPasswords();
 ensureAuditLogs();
 await db.write();
 
-// Middleware CORS
-app
-  .use((req, res, next) => {
-    cors({
-      allowedHeaders: req.headers['access-control-request-headers']
-        ?.split(',')
-        .map((h) => h.trim()),
-    })(req, res, next);
-  })
-  .options('*', cors());
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  }
+
+  if (req.method === 'OPTIONS') {
+    res.statusCode = 204;
+    return res.end();
+  }
+
+  return next();
+});
 
 // Middleware JSON
 app.use(json());
@@ -203,6 +253,7 @@ app.post('/login', async (req, res) => {
   }
 
   const token = createToken(user);
+  setAuthCookie(res, token);
 
   res.json({
     accessToken: token,
@@ -241,11 +292,17 @@ app.post('/register', async (req, res) => {
   await db.write();
 
   const token = createToken(newUser);
+  setAuthCookie(res, token);
 
   res.status(201).json({
     accessToken: token,
     user: sanitizeUser(newUser),
   });
+});
+
+app.post('/logout', (req, res) => {
+  clearAuthCookie(res);
+  res.json({ ok: true });
 });
 
 // Rota para consultar perfil autenticado

@@ -8,9 +8,11 @@ vi.mock('@/services/auth', () => ({
   authService: {
     login: vi.fn(),
     register: vi.fn(),
+    logout: vi.fn(),
     updateProfile: vi.fn(),
     getUsers: vi.fn(),
     getUserById: vi.fn(),
+    getProfile: vi.fn(),
   },
 }));
 
@@ -83,13 +85,14 @@ describe('Auth Store', () => {
     expect(store.error).toBeNull();
   });
 
-  it('deve limpar estado com logout()', () => {
+  it('deve limpar estado com logout()', async () => {
     const store = useAuthStore();
     store.user = { id: '1', name: 'John', email: 'john@example.com', role: 'user' };
     store.token = 'test-token';
     store.error = 'Some error';
 
-    store.logout();
+    vi.mocked(authService.logout).mockResolvedValue();
+    await store.logout();
 
     expect(store.user).toBeNull();
     expect(store.token).toBeNull();

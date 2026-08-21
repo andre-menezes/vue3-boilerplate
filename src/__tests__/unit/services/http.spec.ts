@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
-import http from '@/services/http';
+import http from '@/services/instance';
 
 const pushMock = vi.hoisted(() => vi.fn());
 
@@ -52,14 +52,16 @@ describe('HTTP Service', () => {
     expect(contentType).toBe('application/json');
   });
 
-  it('deve enviar Authorization com Bearer token quando usuário está autenticado', async () => {
+  it('deve enviar cookies em requisições com credentials ativadas', async () => {
     const authStore = useAuthStore();
+    let withCredentials: unknown;
     let authorization: unknown;
 
     authStore.token = 'jwt-token';
 
     await http.get('/users', {
       adapter: async (config) => {
+        withCredentials = config.withCredentials;
         authorization = config.headers.get('Authorization');
 
         return {
@@ -72,7 +74,8 @@ describe('HTTP Service', () => {
       },
     });
 
-    expect(authorization).toBe('Bearer jwt-token');
+    expect(withCredentials).toBe(true);
+    expect(authorization).toBeUndefined();
   });
 
   it('não deve enviar Authorization quando não há token', async () => {

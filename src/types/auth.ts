@@ -8,7 +8,7 @@ interface User {
 
 interface AuthResponse {
   user: Omit<User, 'password'>;
-  accessToken: string;
+  accessToken?: string;
 }
 
 interface LoginPayload {

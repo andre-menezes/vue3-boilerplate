@@ -67,6 +67,55 @@ Always use `yarn` — never `npm` or `pnpm`.
 - Semantic CSS variables (e.g. `--color-brand`, `--color-surface`, `--color-text-primary`) are defined in `:root` and should be preferred over raw palette tokens.
 - Mobile-first breakpoints.
 
+## HTTP Requests & Composables
+
+**useFetch:** Generic composable for making HTTP requests with method-chaining, always returns `{ data, error, loading }` without throwing exceptions.
+
+**Usage patterns:**
+
+```typescript
+// Single GET request
+const { data, error, loading } = await useFetch().get<User>('/users/1');
+if (error) console.error('Failed to fetch user:', error);
+else console.log('User:', data);
+
+// POST with payload
+const { data, error, loading } = await useFetch().post<User>('/users', {
+  name: 'Jane Doe',
+  email: 'jane@example.com',
+  password: '123456',
+});
+
+// PATCH for updates
+const { data, error, loading } = await useFetch().patch<User>('/profile', {
+  name: 'Updated Name',
+});
+
+// DELETE request
+const { data, error, loading } = await useFetch().del<void>(`/users/${userId}`);
+
+// Method chaining (sequential requests)
+const usersList = await useFetch().get<User[]>('/users');
+if (usersList.error) return;
+
+const newUser = await useFetch().post<User>('/users', { name: 'Bob' });
+if (newUser.error) return;
+
+console.log('Created:', newUser.data);
+```
+
+**Response structure:** All methods return `{ data: T | null, error: string | null, loading: Ref<boolean> }`:
+
+- **data** — parsed response body or `null` if error occurred
+- **error** — error message string or `null` on success
+- **loading** — reactive boolean ref (starts `true`, ends `false`)
+
+**Error extraction:** Errors are automatically extracted from the API response's `error` field (e.g. `{ error: 'Email already exists' }`). If no `error` field exists, falls back to `error.message`.
+
+**Type safety:** All methods are fully generic — use `.get<User>()`, `.post<AuthResponse>()`, etc. to get typed data.
+
+**Token injection:** The axios instance (`src/services/instance.ts`) automatically injects `Authorization: Bearer {token}` headers if the user is authenticated. On 401, the store logs out and redirects to Login.
+
 ## Commit conventions
 
 Commits follow Conventional Commits (`@commitlint/config-conventional`). Husky runs lint-staged on pre-commit.
